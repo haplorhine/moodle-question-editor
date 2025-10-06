@@ -1,7 +1,10 @@
 import { useState } from 'react';
+import { XMLParser } from "fast-xml-parser";
 import Container from 'react-bootstrap/Container';
 import ImportFile from './components/ImportFile';
+import Questions from './components/Questions';
 import Form from 'react-bootstrap/Form';
+
 
 const SearchBar = ({visible}) => {
   if (!visible) {
@@ -22,7 +25,15 @@ const SearchBar = ({visible}) => {
 function App() {
   const [data, setData] = useState(null);
 
-  const importedXML = data ? <pre>{JSON.stringify(data, null, 2)}</pre> : "";
+
+  const handleFileRead = text => {
+        const options = {
+          ignoreAttributes : false
+        };
+        const parser = new XMLParser(options);
+        const jsonObj = parser.parse(text);
+        setData(jsonObj);
+  }
 
   
   return (
@@ -31,11 +42,11 @@ function App() {
         <Container className="p-5 mb-4 bg-light rounded-3">
           <h1 className="header">Moodle Question Editor</h1>
           { }
-          <ImportFile setAppData={setData} />
+          <ImportFile onFileRead={handleFileRead} />
 
           <SearchBar visible={!!data}/>
 
-          {importedXML}
+          <Questions data={data}/>
 
         </Container>
       </Container>

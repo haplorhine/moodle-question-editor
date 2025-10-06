@@ -1,26 +1,14 @@
 import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import { XMLParser } from "fast-xml-parser";
 
-const ImportFile = ({setAppData}) => {
+const ImportFile = ({onFileRead}) => {
   const [selectedFile, setSelectedFile] = useState(null);
 
   const handleFileChange = (ev) => {
-    const targetFile = ev.target.files[0] ? ev.target.files[0] : null;
-    setSelectedFile(targetFile);
-    setAppData(null);
+    const file = ev.target.files[0] ? ev.target.files[0] : null;
+    setSelectedFile(file);
   };
-
-  const parseXML = text => {
-        console.log("parsing: ", text)
-        const options = {
-          ignoreAttributes : false
-        };
-        const parser = new XMLParser(options);
-        const jsonObj = parser.parse(text);
-        setAppData(jsonObj);
-  }
 
   const handleImport = () => {
     if (!selectedFile) {
@@ -28,7 +16,7 @@ const ImportFile = ({setAppData}) => {
     }
 
     selectedFile.text()
-      .then(fileText => parseXML(fileText));
+      .then(fileText => onFileRead(fileText));
   };
 
   return (
