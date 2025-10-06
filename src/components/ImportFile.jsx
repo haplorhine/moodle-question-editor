@@ -14,7 +14,10 @@ const ImportFile = ({setAppData}) => {
 
   const parseXML = text => {
         console.log("parsing: ", text)
-        const parser = new XMLParser();
+        const options = {
+          ignoreAttributes : false
+        };
+        const parser = new XMLParser(options);
         const jsonObj = parser.parse(text);
         setAppData(jsonObj);
   }
