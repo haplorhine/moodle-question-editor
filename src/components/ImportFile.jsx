@@ -33,7 +33,7 @@ const ImportFile = ({setAppData}) => {
 
   return (
     <Form.Group controlId="formFile" className="mb-3">
-      <Form.Label>Default file input example</Form.Label>
+      <Form.Label>Choose an XML file to import</Form.Label>
       <Form.Control type="file" onChange={handleFileChange} />
       <Button
         className="mt-2"

@@ -24,7 +24,6 @@ function App() {
 
   const importedXML = data ? <pre>{JSON.stringify(data, null, 2)}</pre> : "";
 
-  const searchBarVisible = data ? true : false;
   
   return (
     <>
@@ -34,7 +33,7 @@ function App() {
           { }
           <ImportFile setAppData={setData} />
 
-          <SearchBar visible={searchBarVisible}/>
+          <SearchBar visible={!!data}/>
 
           {importedXML}
 
