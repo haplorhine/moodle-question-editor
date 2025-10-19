@@ -1,18 +1,26 @@
 import Form from 'react-bootstrap/Form';
 
 
-const Question = ({ question }) => {
-  console.log(question)
+import { useRef, useState } from 'react';
+import Editor from 'react-simple-wysiwyg';
+
+
+const Question = ({ question, id}) => {
+  const editorRef = useRef(null); // to make editor focusable
+  const [html, setHtml] = useState(question.questiontext.text);
+  const [questionName, setquestionName] = useState(question.name.text);
+
+  console.log(html)
   return (
     <div className="rounded border bg-warning p-3">
       <Form>
-        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+        <Form.Group className="mb-3" controlId={"questionformname" + id}>
           <Form.Label>Question Name</Form.Label>
-          <Form.Control value={question.name.text} type="text" placeholder="" />
+          <Form.Control value={questionName} onChange={event => setquestionName(event.target.value)} type="text" placeholder="" />
         </Form.Group>
-        <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-          <Form.Label>Question Text</Form.Label>
-          <Form.Control value={question.questiontext.text} as="textarea" rows={3} />
+        <Form.Group className="mb-3">
+          <Form.Label onClick={() => editorRef.current?.focus()} htmlFor={"questionformtext" + id}>Question Text</Form.Label>
+          <Editor ref={editorRef} onChange={event => setHtml(event.target.value)} id={"questionformtext" + id} style={{ background: "lightgreen" }} value={html} />
         </Form.Group>
       </Form>
 
@@ -20,12 +28,6 @@ const Question = ({ question }) => {
   )
 
 }
-
-
-
-
-
-
 
 const Questions = ({ filter, questions }) => {
 
@@ -35,7 +37,7 @@ const Questions = ({ filter, questions }) => {
 
 
 
-  const questionList = questions.map(question => <Question key={question.uuid} question={question} />)
+  const questionList = questions.map(question => <Question key={question.uuid} id={question.uuid} question={question} />)
 
   return questionList
 
