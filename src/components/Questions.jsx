@@ -12,7 +12,7 @@ const Question = ({ question, id}) => {
 
   console.log(html)
   return (
-    <div className="rounded border bg-warning p-3">
+    <div className="rounded border bg-info-subtle border-info-subtle p-3 mb-3">
       <Form>
         <Form.Group className="mb-3" controlId={"questionformname" + id}>
           <Form.Label>Question Name</Form.Label>
@@ -20,7 +20,7 @@ const Question = ({ question, id}) => {
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label onClick={() => editorRef.current?.focus()} htmlFor={"questionformtext" + id}>Question Text</Form.Label>
-          <Editor ref={editorRef} onChange={event => setHtml(event.target.value)} id={"questionformtext" + id} style={{ background: "lightgreen" }} value={html} />
+          <Editor className="bg-white" ref={editorRef} onChange={event => setHtml(event.target.value)} id={"questionformtext" + id} value={html} />
         </Form.Group>
       </Form>
 
