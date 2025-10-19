@@ -3,34 +3,22 @@ import { XMLParser } from "fast-xml-parser";
 import Container from 'react-bootstrap/Container';
 import ImportFile from './components/ImportFile';
 import Questions from './components/Questions';
-import Form from 'react-bootstrap/Form';
+import SearchBar from './components/SearchBar';
 
-
-const SearchBar = ({ value, visible, onChange }) => {
-  if (!visible) {
-    return null;
-  }
-  return (
-    <>
-      <Form.Label htmlFor="searchBar">Search Question</Form.Label>
-      <Form.Control
-        value={value}
-        type="text"
-        id="searchBar"
-        className="mb-5"
-        onChange={onChange}
-      />
-    </>
-  );
-};
 
 function App() {
   const [data, setData] = useState(null);
   const [filter, setFilter] = useState('')
 
   console.log(data)
-  //todo implement 
-  // const filteredData = data.filter(data => data.name.toLowerCase().includes(filter.toLowerCase()))
+  // todo implement
+  const questions = data?.quiz.question.filter(q => q["@_type"] !== "category") ?? [];
+
+  console.log(questions)
+
+  const filteredQuestions = questions.filter(q => q.name.text.toLowerCase().includes(filter.toLowerCase()) || q.questiontext.text.toLowerCase().includes(filter.toLowerCase()))
+
+
 
   const filterChange = ev => setFilter(ev.target.value)
 
@@ -63,9 +51,10 @@ function App() {
           <SearchBar onChange={filterChange} visible={!!data} />
           {/* <SearchBar value={filter} onChange={filterChange} visible={true} /> */}
           
-          {filter && data ? "Questions containing: " + filter : data ? "All questions:" : null}
+          
+          <p>{filter && data ? "Questions containing: " + filter : data ? "All questions:" : null}</p>
 
-          <Questions filter={filter} data={data} />
+          <Questions questions={filteredQuestions} />
 
         </Container>
       </Container>

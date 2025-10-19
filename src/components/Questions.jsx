@@ -1,10 +1,10 @@
-const Questions = ({ filter, data }) => {
+const Questions = ({ filter, questions }) => {
 
-  if (!data) {
+  if (!questions) {
     return null
   } 
 
-  const questions = data.quiz.question;
+  
 
   const questionList = questions.map(question => <pre key={question.uuid} className="rounded border bg-warning p-3">{JSON.stringify(question, null, 2)}</pre>)
 
