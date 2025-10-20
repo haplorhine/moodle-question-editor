@@ -1,12 +1,13 @@
-import { useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
+import { useState } from "react";
+import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
 
-const ImportFile = ({onFileRead}) => {
+const ImportFile = ({ onFileRead }) => {
   const [selectedFile, setSelectedFile] = useState(null);
 
   const handleFileChange = (ev) => {
     const file = ev.target.files[0] ? ev.target.files[0] : null;
+
     setSelectedFile(file);
   };
 
@@ -15,8 +16,7 @@ const ImportFile = ({onFileRead}) => {
       return;
     }
 
-    selectedFile.text()
-      .then(fileText => onFileRead(fileText));
+    selectedFile.text().then((fileText) => onFileRead(fileText));
   };
 
   return (

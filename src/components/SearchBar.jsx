@@ -1,4 +1,4 @@
-import Form from 'react-bootstrap/Form';
+import Form from "react-bootstrap/Form";
 
 const SearchBar = ({ value, visible, onChange }) => {
   if (!visible) {
@@ -7,6 +7,7 @@ const SearchBar = ({ value, visible, onChange }) => {
   return (
     <>
       <Form.Label htmlFor="searchBar">Search Question</Form.Label>
+
       <Form.Control
         value={value}
         type="text"
