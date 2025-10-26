@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { XMLParser } from 'fast-xml-parser'
 import FileImport from './components/FileImport.vue'
 import QuestionEditor from './components/QuestionEditor.vue'
@@ -7,6 +7,11 @@ import Searchbar from './components/Searchbar.vue'
 
 const parsedXML = ref(null)
 const filter = ref('')
+
+// questions will be filled by computed after import of xml
+const questions = computed(() =>
+  parsedXML.value ? parsedXML.value.quiz.question.filter((q) => q['@_type'] !== 'category') : null,
+)
 
 const parseFile = (text) => {
   // XMLParser options
@@ -37,6 +42,9 @@ const handleImport = (file) => {
 
   file.text().then((text) => parseFile(text))
 }
+
+console.log('ref', parsedXML)
+console.log('questions', questions)
 </script>
 
 <template>
@@ -46,7 +54,7 @@ const handleImport = (file) => {
   <Searchbar v-if="parsedXML" />
 
   <!-- <p v-for="question of parsedXML.data"><pre>{{ JSON.stringify(question) }}</pre></p> -->
-  <pre v-if="parsedXML">{{ JSON.stringify(parsedXML.quiz.question, null, 4) }}</pre>
+  <pre v-if="questions">{{ JSON.stringify(questions, null, 4) }}</pre>
 
   <QuestionEditor questions="{filteredQuestions}" />
 </template>
