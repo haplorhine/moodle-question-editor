@@ -8,15 +8,19 @@ import Searchbar from './components/Searchbar.vue'
 const parsedXML = ref(null)
 const filter = ref('')
 
-console.log(parsedXML.value)
+const handleImport = (file) => {
+  if (!file) {
+    return
+  }
 
-const handleImport = (file) => console.log('handle file: ', file.value)
+  console.log('handle file: ', file)
+}
 </script>
 
 <template>
   <h1>Moodle Question Editor</h1>
 
-  <FileImport @response="(file) => handleImport(file)" />
+  <FileImport @importClick="(file) => handleImport(file)" />
   <Searchbar v-if="parsedXML" />
 
   <QuestionEditor questions="{filteredQuestions}" />
