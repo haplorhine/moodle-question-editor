@@ -66,9 +66,7 @@ console.log('questions', questions)
 
   <Searchterm :filteredQuestions="filteredQuestions" :filter="filter" :parsedXML="parsedXML" />
 
-  <pre v-if="filteredQuestions.length">{{ JSON.stringify(filteredQuestions, null, 4) }}</pre>
-
-  <QuestionList questions="{filteredQuestions}" />
+  <QuestionList v-if="filteredQuestions.length" :questions="filteredQuestions" />
 </template>
 
 <style scoped></style>
