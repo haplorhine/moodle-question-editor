@@ -13,6 +13,17 @@ const questions = computed(() =>
   parsedXML.value ? parsedXML.value.quiz.question.filter((q) => q['@_type'] !== 'category') : null,
 )
 
+const filteredQuestions = computed(() => {
+  const list = questions.value ?? []
+  const search = filter.value.trim().toLowerCase()
+  if (!search) return list
+  return list.filter(
+    (q) =>
+      q.name.text.toLowerCase().includes(search) ||
+      q.questiontext.text.toLowerCase().includes(search),
+  )
+})
+
 const parseFile = (text) => {
   // XMLParser options
   const options = {
@@ -21,7 +32,6 @@ const parseFile = (text) => {
   const parser = new XMLParser(options)
 
   const jsonObj = parser.parse(text)
-  // debugger;
 
   // uuid um vue ein key attribute zu geben bei iteration
   jsonObj.quiz.question = jsonObj.quiz.question.map((question) => ({
@@ -51,10 +61,9 @@ console.log('questions', questions)
   <h1>Moodle Question Editor</h1>
 
   <FileImport @importClick="(file) => handleImport(file)" />
-  <Searchbar v-if="parsedXML" />
+  <Searchbar v-model="filter" v-if="parsedXML" />
 
-  <!-- <p v-for="question of parsedXML.data"><pre>{{ JSON.stringify(question) }}</pre></p> -->
-  <pre v-if="questions">{{ JSON.stringify(questions, null, 4) }}</pre>
+  <pre v-if="filteredQuestions.length">{{ JSON.stringify(filteredQuestions, null, 4) }}</pre>
 
   <QuestionEditor questions="{filteredQuestions}" />
 </template>
