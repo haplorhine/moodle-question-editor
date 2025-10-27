@@ -2,13 +2,14 @@
 import { ref, computed } from 'vue'
 import { XMLParser } from 'fast-xml-parser'
 import FileImport from './components/FileImport.vue'
-import QuestionEditor from './components/QuestionEditor.vue'
+import QuestionList from './components/QuestionList.vue'
 import Searchbar from './components/Searchbar.vue'
+import Searchterm from './Searchterm.vue'
 
 const parsedXML = ref(null)
 const filter = ref('')
 
-// questions will be filled by computed after import of xml
+// questions will be updated by reactivity system after import of xml
 const questions = computed(() =>
   parsedXML.value ? parsedXML.value.quiz.question.filter((q) => q['@_type'] !== 'category') : null,
 )
@@ -63,9 +64,11 @@ console.log('questions', questions)
   <FileImport @importClick="(file) => handleImport(file)" />
   <Searchbar v-model="filter" v-if="parsedXML" />
 
+  <Searchterm :filteredQuestions="filteredQuestions" :filter="filter" :parsedXML="parsedXML" />
+
   <pre v-if="filteredQuestions.length">{{ JSON.stringify(filteredQuestions, null, 4) }}</pre>
 
-  <QuestionEditor questions="{filteredQuestions}" />
+  <QuestionList questions="{filteredQuestions}" />
 </template>
 
 <style scoped></style>
