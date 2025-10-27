@@ -15,7 +15,9 @@
   },
   "dependencies": {
     "fast-xml-parser": "^5.3.0",
+    "quill": "^2.0.3",
     "vue": "^3.5.22",
+    "vue-quilly": "^1.1.5",
     "vue-router": "^4.6.3"
   },
   "devDependencies": {
