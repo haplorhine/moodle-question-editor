@@ -8,7 +8,7 @@ import Searchbar from './components/Searchbar.vue'
 import Searchterm from './Searchterm.vue'
 
 const parsedXML = ref(null)
-const builtXML = ref(null)
+const builtXmlURL = ref(null)
 const filter = ref('')
 
 // questions will be updated by reactivity system after import of xml
@@ -61,8 +61,8 @@ const exportXML = (jObj) => {
 
   const builder = new XMLBuilder(options)
   const xmlContent = builder.build(jObj)
-  builtXML.value = xmlContent
-  console.log(xmlContent)
+  const blob = new Blob([xmlContent], { type: 'application/xml' })
+  builtXmlURL.value = URL.createObjectURL(blob)
 }
 
 const handleImport = (file) => {
@@ -86,8 +86,9 @@ console.log('questions', questions)
   <Searchterm :filteredQuestions="filteredQuestions" :filter="filter" :parsedXML="parsedXML" />
 
   <QuestionList v-if="filteredQuestions.length" :questions="filteredQuestions" />
+
   <button v-if="parsedXML" @click="exportXML(parsedXML)">Export</button>
-  <pre v-if="builtXML">{{ builtXML }}</pre>
+  <a v-if="parsedXML && builtXmlURL" :href="builtXmlURL" download="questions.xml">Download XML</a>
 </template>
 
 <style scoped></style>
