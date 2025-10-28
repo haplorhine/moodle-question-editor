@@ -9,7 +9,7 @@ defineProps(['question'])
     <p>Name:</p>
     <input type="text" v-model="question.name.text" width="1000" />
     <p>Text:</p>
-    <TextEditor v-model:html="question.questiontext.text" />
+    <TextEditor v-model:html="question.questiontext.text.__cdata" />
   </div>
 </template>
 

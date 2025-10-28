@@ -1,12 +1,14 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { XMLParser } from 'fast-xml-parser'
+import { XMLBuilder } from 'fast-xml-parser'
 import FileImport from './components/FileImport.vue'
 import QuestionList from './components/QuestionList.vue'
 import Searchbar from './components/Searchbar.vue'
 import Searchterm from './Searchterm.vue'
 
 const parsedXML = ref(null)
+const builtXML = ref(null)
 const filter = ref('')
 
 // questions will be updated by reactivity system after import of xml
@@ -28,6 +30,7 @@ const filteredQuestions = computed(() => {
 const parseFile = (text) => {
   // XMLParser options
   const options = {
+    cdataPropName: '__cdata',
     ignoreAttributes: false,
   }
   const parser = new XMLParser(options)
@@ -44,6 +47,22 @@ const parseFile = (text) => {
     })),
   }))
   parsedXML.value = jsonObj
+}
+
+const exportXML = (jObj) => {
+  console.log(jObj)
+
+  const options = {
+    attributeNamePrefix: '@_',
+    cdataPropName: '__cdata',
+    ignoreAttributes: false,
+    format: true,
+  }
+
+  const builder = new XMLBuilder(options)
+  const xmlContent = builder.build(jObj)
+  builtXML.value = xmlContent
+  console.log(xmlContent)
 }
 
 const handleImport = (file) => {
@@ -67,6 +86,8 @@ console.log('questions', questions)
   <Searchterm :filteredQuestions="filteredQuestions" :filter="filter" :parsedXML="parsedXML" />
 
   <QuestionList v-if="filteredQuestions.length" :questions="filteredQuestions" />
+  <button v-if="parsedXML" @click="exportXML(parsedXML)">Export</button>
+  <pre v-if="builtXML">{{ builtXML }}</pre>
 </template>
 
 <style scoped></style>
