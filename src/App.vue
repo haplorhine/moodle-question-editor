@@ -23,7 +23,7 @@ const filteredQuestions = computed(() => {
   return list.filter(
     (q) =>
       q.name.text.toLowerCase().includes(search) ||
-      q.questiontext.text.toLowerCase().includes(search),
+      q.questiontext.text.__cdata.toLowerCase().includes(search),
   )
 })
 
