@@ -1,11 +1,21 @@
 import './assets/main.css'
-
 import { createApp } from 'vue'
 import App from './App.vue'
-//import router from './router'
+
+// Bootstrap-Stile
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue-next/dist/bootstrap-vue-next.css'
+
+// Alle Komponenten importieren
+import * as BootstrapVueNext from 'bootstrap-vue-next'
 
 const app = createApp(App)
 
-//app.use(router)
+// 👇 Alle B*-Komponenten global registrieren
+for (const [key, component] of Object.entries(BootstrapVueNext)) {
+  if (key.startsWith('B')) {
+    app.component(key, component)
+  }
+}
 
 app.mount('#app')

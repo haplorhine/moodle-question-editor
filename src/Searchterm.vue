@@ -11,7 +11,5 @@ const { filteredQuestions, filter, parsedXML } = defineProps({
     <p v-if="filter && parsedXML && filteredQuestions.length == 0">
       No questions contain: {{ filter }}
     </p>
-    <p v-else-if="filter && parsedXML">Questions containing: {{ filter }}</p>
-    <p v-else-if="parsedXML">All questions</p>
   </div>
 </template>

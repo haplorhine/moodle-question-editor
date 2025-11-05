@@ -11,6 +11,7 @@ const editor = ref<InstanceType<typeof QuillyEditor>>()
 let quill: Quill | undefined
 
 const options = {
+  header: '1',
   theme: 'snow',
   modules: {
     toolbar: [

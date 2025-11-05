@@ -78,17 +78,31 @@ console.log('questions', questions)
 </script>
 
 <template>
-  <h1>Moodle Question Editor</h1>
+  <h1 class="display-1 d-flex justify-content-center bg-primary text-white pb-3 fw-bold">Moodle Question Editor</h1>
 
-  <FileImport @importClick="(file) => handleImport(file)" />
-  <Searchbar v-model="filter" v-if="parsedXML" />
+  <div class="d-flex justify-content-center" v-if="!parsedXML">
+    <FileImport @importClick="(file) => handleImport(file)" />
+  </div>
 
-  <Searchterm :filteredQuestions="filteredQuestions" :filter="filter" :parsedXML="parsedXML" />
+  <div class="container">
+    <Searchbar v-model="filter" v-if="parsedXML" />
+    <Searchterm :filteredQuestions="filteredQuestions" :filter="filter" :parsedXML="parsedXML" />
+  </div>
 
-  <QuestionList v-if="filteredQuestions.length" :questions="filteredQuestions" />
+  <div class="container mt-3 border bg-secondary-subtle rounded p-2" v-if="parsedXML">
 
-  <button v-if="parsedXML" @click="exportXML(parsedXML)">Export</button>
-  <a v-if="parsedXML && builtXmlURL" :href="builtXmlURL" download="questions.xml">Download XML</a>
+    <div class="mb-5">
+      <QuestionList v-if="filteredQuestions.length" :questions="filteredQuestions" />
+    </div>
+
+
+    <div class="fixed-bottom container  py-2 mt-3 justify-content-end d-flex">
+      <button class="btn btn-success me-3" v-if="parsedXML" @click="exportXML(parsedXML)" data-bs-toggle="modal" data-bs-target="#downloadmodal">Export</button>
+      <a :href="builtXmlURL" download="questions.xml" v-if="parsedXML && builtXmlURL" class="btn btn-success">Download XML</a>
+    </div>
+
+  </div>
+
 </template>
 
 <style scoped></style>

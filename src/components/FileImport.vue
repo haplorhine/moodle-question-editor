@@ -10,10 +10,21 @@ const handleFileChange = (ev) => {
 }
 </script>
 <template>
-  <label for="fileInput">Choose an XML file to import</label>
-  <input @change="handleFileChange" type="file" id="fileInput" />
-  <button @click="emit('importClick', selectedFile)" :disabled="!selectedFile" id="importButton">
+  <div class="row justify-content-center">
+    <label for="fileInput" class="display-6 form-label d-flex justify-content-center">Choose an XML file to import </label>
+    <div class="col-6">
+      <input @change="handleFileChange" type="file" id="fileInput" class="form-control"/>
+    </div>
+    <div class="col-1">
+    <button class="btn btn-success" @click="emit('importClick', selectedFile)" :disabled="!selectedFile" id="importButton">
     Import
   </button>
+  </div>
+  </div>
+
+
+
+
 </template>
+
 <style scoped></style>
