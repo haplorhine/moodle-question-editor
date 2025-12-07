@@ -4,6 +4,7 @@ import App from './App.vue'
 
 // Bootstrap-Stile
 import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import 'bootstrap-vue-next/dist/bootstrap-vue-next.css'
 
 // Alle Komponenten importieren
