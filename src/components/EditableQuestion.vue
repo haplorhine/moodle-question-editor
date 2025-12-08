@@ -1,8 +1,30 @@
+<!-- eslint-disable vue/no-mutating-props -->
+<!-- eslint-disable vue/no-mutating-props -->
 <script setup>
-import { Text } from 'vue';
 import TextEditor from './TextEditor.vue'
 
-defineProps(['question'])
+const props = defineProps({
+  question: {
+    type: Object,
+    required: true
+  }
+})
+
+const addAnswer = () => {
+  if (!props.question.answer) {
+    props.question.answer = [];
+  }
+  props.question.answer.push({
+    text: '',
+    '@_fraction': '0',
+    feedback: {
+      text: ''
+    }
+  });
+};
+const removeAnswer = (question, index) => {
+  question.answer.splice(index, 1);
+};
 </script>
 
 <template>
