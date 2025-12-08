@@ -14,8 +14,8 @@ defineProps(['question'])
       <div
         class="card-header bg-primary text-white fw-bold"
         data-bs-toggle="collapse"
-        :data-bs-target="`#question-collapse-${question.id}`"
-        :aria-controls="`question-collapse-${question.id}`"
+        :data-bs-target="`#question-collapse-${question.uuid}`"
+        :aria-controls="`question-collapse-${question.uuid}`"
         aria-expanded="false"
         style="cursor: pointer"
       >
@@ -31,7 +31,7 @@ defineProps(['question'])
 
       <!-- Collapse-Wrapper um den Body: am Anfang ZU -->
       <div
-        :id="`question-collapse-${question.id}`"
+        :id="`question-collapse-${question.uuid}`"
         class="collapse"
       >
         <div class="card-body">
@@ -87,20 +87,20 @@ defineProps(['question'])
           <hr />
 
           <!-- Antworten -->
-          <div class="accordion mb-4" :id="`answersAccordion-${question.id}`">
+          <div class="accordion mb-4" :id="`answersAccordion-${question.uuid}`">
             <div
               class="accordion-item mb-3 bg-light"
               v-for="(ans, i) in question.answer"
               :key="i"
             >
-              <h2 class="accordion-header" :id="`answer-heading-${question.id}-${i}`">
+              <h2 class="accordion-header" :id="`answer-heading-${question.uuid}-${i}`">
                 <div class="d-flex align-items-center gap-2">
                   <button
                     class="accordion-button flex-grow-1 collapsed"
                     type="button"
                     data-bs-toggle="collapse"
-                    :data-bs-target="`#answer-collapse-${question.id}-${i}`"
-                    :aria-controls="`answer-collapse-${question.id}-${i}`"
+                    :data-bs-target="`#answer-collapse-${question.uuid}-${i}`"
+                    :aria-controls="`answer-collapse-${question.uuid}-${i}`"
                     aria-expanded="false"
                   >
                     {{ ans.text }}
@@ -117,9 +117,9 @@ defineProps(['question'])
               </h2>
 
               <div
-                :id="`answer-collapse-${question.id}-${i}`"
+                :id="`answer-collapse-${question.uuid}-${i}`"
                 class="accordion-collapse collapse"
-                :aria-labelledby="`answer-heading-${question.id}-${i}`"
+                :aria-labelledby="`answer-heading-${question.uuid}-${i}`"
               >
                 <div class="accordion-body">
                   <div class="mb-3 form-floating">
