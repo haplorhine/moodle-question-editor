@@ -11,13 +11,28 @@ const parsedXML = ref(null)
 const builtXmlURL = ref(null)
 const filter = ref('')
 
+const acceptedTypes = ['multichoice', 'oumultiresponse']
+
 // questions will be updated by reactivity system after import of xml
-const questions = computed(() =>
-  parsedXML.value ? parsedXML.value.quiz.question.filter((q) => q['@_type'] !== 'category') : null,
-)
+const questions = computed(() => {
+  if (parsedXML.value) {
+    const allQuestions = parsedXML.value.quiz.question
+    console.log('hallo', allQuestions)
+    return allQuestions
+  }
+  return null
+})
+
+const editableQuestions = computed(() => {
+  const isOfAcceptedType = (question) => acceptedTypes.some((type) => type === question['@_type'])
+  if (questions.value === null) {
+    return null
+  }
+  return questions.value.filter(isOfAcceptedType)
+})
 
 const filteredQuestions = computed(() => {
-  const list = questions.value ?? []
+  const list = editableQuestions.value ?? []
   const search = filter.value.trim().toLowerCase()
   if (!search) return list
   return list.filter(
@@ -29,23 +44,35 @@ const filteredQuestions = computed(() => {
 
 const parseFile = (text) => {
   // XMLParser options
+
+  const alwaysArray = ['quiz.question.answer']
+
   const options = {
     cdataPropName: '__cdata',
     ignoreAttributes: false,
+    // damit antworten immer in array umgewandelt werden
+    isArray: (name, jpath, isLeafNode, isAttribute) => {
+      if (alwaysArray.indexOf(jpath) !== -1) return true
+    },
   }
   const parser = new XMLParser(options)
 
   const jsonObj = parser.parse(text)
 
+  console.log(jsonObj)
   // uuid um vue ein key attribute zu geben bei iteration
-  jsonObj.quiz.question = jsonObj.quiz.question.map((question) => ({
-    ...question,
-    uuid: crypto.randomUUID(),
-    answer: question.answer?.map((answer) => ({
+  jsonObj.quiz.question = jsonObj.quiz.question.map((question) => {
+    console.log(question['@_type'], 'question.answer content', question.answer)
+    const answerWithID = question.answer?.map((answer) => ({
       ...answer,
       uuid: crypto.randomUUID(),
-    })),
-  }))
+    }))
+    return {
+      ...question,
+      uuid: crypto.randomUUID(),
+      answer: answerWithID,
+    }
+  })
   parsedXML.value = jsonObj
 }
 
@@ -78,7 +105,9 @@ console.log('questions', questions)
 </script>
 
 <template>
-  <h1 class="display-1 d-flex justify-content-center bg-primary text-white pb-3 fw-bold">Moodle Question Editor</h1>
+  <h1 class="display-1 d-flex justify-content-center bg-primary text-white pb-3 fw-bold">
+    Moodle Question Editor
+  </h1>
 
   <div class="d-flex justify-content-center" v-if="!parsedXML">
     <FileImport @importClick="(file) => handleImport(file)" />
@@ -90,19 +119,29 @@ console.log('questions', questions)
   </div>
 
   <div class="container mt-3 border bg-secondary-subtle rounded p-2" v-if="parsedXML">
-
     <div class="mb-5">
       <QuestionList v-if="filteredQuestions.length" :questions="filteredQuestions" />
     </div>
 
-
-    <div class="fixed-bottom container  py-2 mt-3 justify-content-end d-flex">
-      <button class="btn btn-success me-3" v-if="parsedXML" @click="exportXML(parsedXML)" data-bs-toggle="modal" data-bs-target="#downloadmodal">Export</button>
-      <a :href="builtXmlURL" download="questions.xml" v-if="parsedXML && builtXmlURL" class="btn btn-success">Download XML</a>
+    <div class="fixed-bottom container py-2 mt-3 justify-content-end d-flex">
+      <button
+        class="btn btn-success me-3"
+        v-if="parsedXML"
+        @click="exportXML(parsedXML)"
+        data-bs-toggle="modal"
+        data-bs-target="#downloadmodal"
+      >
+        Export
+      </button>
+      <a
+        :href="builtXmlURL"
+        download="questions.xml"
+        v-if="parsedXML && builtXmlURL"
+        class="btn btn-success"
+        >Download XML</a
+      >
     </div>
-
   </div>
-
 </template>
 
 <style scoped></style>
