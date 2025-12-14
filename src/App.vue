@@ -2,14 +2,19 @@
 import { ref, computed } from 'vue'
 import { XMLParser } from 'fast-xml-parser'
 import { XMLBuilder } from 'fast-xml-parser'
+import { createNewQuestionTemplate } from './utils/questionHelpers.js'
 import FileImport from './components/FileImport.vue'
 import QuestionList from './components/QuestionList.vue'
 import Searchbar from './components/Searchbar.vue'
 import Searchterm from './Searchterm.vue'
+import BaseButton from './components/BaseButton.vue'
+import EditableQuestion from './components/EditableQuestion.vue'
 
 const parsedXML = ref(null)
 const builtXmlURL = ref(null)
 const filter = ref('')
+const newQuestion = ref(null)
+const showNewQuestionForm = ref(false)
 
 const acceptedTypes = ['multichoice', 'oumultiresponse']
 
@@ -100,6 +105,27 @@ const handleImport = (file) => {
   file.text().then((text) => parseFile(text))
 }
 
+const addNewQuestion = () => {
+  if (!parsedXML.value) {
+    return
+  }
+
+  newQuestion.value = createNewQuestionTemplate()
+  showNewQuestionForm.value = true
+}
+
+const confirmNewQuestion = () => {
+  if (newQuestion.value && parsedXML.value) {
+    parsedXML.value.quiz.question.push(newQuestion.value)
+    cancelNewQuestion()
+  }
+}
+
+const cancelNewQuestion = () => {
+  newQuestion.value = null
+  showNewQuestionForm.value = false
+}
+
 console.log('ref', parsedXML)
 console.log('questions', questions)
 </script>
@@ -116,6 +142,31 @@ console.log('questions', questions)
   <div class="container">
     <Searchbar v-model="filter" v-if="parsedXML" />
     <Searchterm :filteredQuestions="filteredQuestions" :filter="filter" :parsedXML="parsedXML" />
+
+    <BaseButton
+      @click="addNewQuestion"
+      text="Add New Question"
+      title="Add a new question"
+      icon="+"
+      v-if="parsedXML && !showNewQuestionForm"
+    />
+
+    <div v-if="showNewQuestionForm && newQuestion" class="mb-4 mt-4">
+      <div class="card border-primary">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Creating New Question</h5>
+        </div>
+        <div class="card-body p-0">
+          <EditableQuestion :question="newQuestion" />
+        </div>
+        <div class="card-footer bg-light">
+          <div class="d-flex justify-content-end gap-2">
+            <button class="btn btn-secondary" @click="cancelNewQuestion">Cancel</button>
+            <button class="btn btn-success" @click="confirmNewQuestion">Add Question</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="container mt-3 border bg-secondary-subtle rounded p-2" v-if="parsedXML">
