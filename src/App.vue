@@ -22,7 +22,6 @@ const acceptedTypes = ['multichoice', 'oumultiresponse']
 const questions = computed(() => {
   if (parsedXML.value) {
     const allQuestions = parsedXML.value.quiz.question
-    console.log('hallo', allQuestions)
     return allQuestions
   }
   return null
@@ -40,13 +39,11 @@ const filteredQuestions = computed(() => {
   const list = editableQuestions.value ?? []
   const search = filter.value.trim().toLowerCase()
   if (!search) return list
-  return list.filter(
-    (q) => {
-      const nameText = q.name?.text?.toLowerCase() || ''
-      const questionText = q.questiontext?.text?.__cdata?.toLowerCase() || ''
-      return nameText.includes(search) || questionText.includes(search)
-    },
-  )
+  return list.filter((q) => {
+    const nameText = q.name?.text?.toLowerCase() || ''
+    const questionText = q.questiontext?.text?.__cdata?.toLowerCase() || ''
+    return nameText.includes(search) || questionText.includes(search)
+  })
 })
 
 const parseFile = (text) => {
@@ -150,7 +147,7 @@ console.log('questions', questions)
     @click="addNewQuestion"
     text="Add New Question"
     title="Add a new question"
-    icon="+"
+    class="mt-2"
     v-if="parsedXML && !showNewQuestionForm"
   />
 
