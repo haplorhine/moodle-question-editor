@@ -41,9 +41,11 @@ const filteredQuestions = computed(() => {
   const search = filter.value.trim().toLowerCase()
   if (!search) return list
   return list.filter(
-    (q) =>
-      q.name.text.toLowerCase().includes(search) ||
-      q.questiontext.text.__cdata.toLowerCase().includes(search),
+    (q) => {
+      const nameText = q.name?.text?.toLowerCase() || ''
+      const questionText = q.questiontext?.text?.__cdata?.toLowerCase() || ''
+      return nameText.includes(search) || questionText.includes(search)
+    },
   )
 })
 
