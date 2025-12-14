@@ -142,28 +142,31 @@ console.log('questions', questions)
   <div class="container">
     <Searchbar v-model="filter" v-if="parsedXML" />
     <Searchterm :filteredQuestions="filteredQuestions" :filter="filter" :parsedXML="parsedXML" />
+  </div>
 
-    <BaseButton
-      @click="addNewQuestion"
-      text="Add New Question"
-      title="Add a new question"
-      icon="+"
-      v-if="parsedXML && !showNewQuestionForm"
-    />
+  <BaseButton
+    @click="addNewQuestion"
+    text="Add New Question"
+    title="Add a new question"
+    icon="+"
+    v-if="parsedXML && !showNewQuestionForm"
+  />
 
-    <div v-if="showNewQuestionForm && newQuestion" class="mb-4 mt-4">
-      <div class="card border-primary">
-        <div class="card-header bg-primary text-white">
-          <h5 class="mb-0">Creating New Question</h5>
-        </div>
-        <div class="card-body p-0">
-          <EditableQuestion :question="newQuestion" />
-        </div>
-        <div class="card-footer bg-light">
-          <div class="d-flex justify-content-end gap-2">
-            <button class="btn btn-secondary" @click="cancelNewQuestion">Cancel</button>
-            <button class="btn btn-success" @click="confirmNewQuestion">Add Question</button>
-          </div>
+  <div
+    v-if="showNewQuestionForm && newQuestion"
+    class="container mt-3 border bg-secondary-subtle rounded p-2"
+  >
+    <div class="card border-primary">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Creating New Question</h5>
+      </div>
+      <div class="card-body p-2">
+        <EditableQuestion :question="newQuestion" />
+      </div>
+      <div class="card-footer bg-light">
+        <div class="d-flex justify-content-end gap-2">
+          <button class="btn btn-secondary" @click="cancelNewQuestion">Cancel</button>
+          <button class="btn btn-success" @click="confirmNewQuestion">Add to list</button>
         </div>
       </div>
     </div>
