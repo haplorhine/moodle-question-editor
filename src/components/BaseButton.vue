@@ -19,7 +19,7 @@ const handleClick = () => {
 
 <template>
   <div class="d-flex justify-content-center mb-3">
-    <button class="btn btn-primary btn-lg" @click="handleClick" :title="title">
+    <button class="btn btn-success btn-lg" @click="handleClick" :title="title">
       {{ text }}
     </button>
   </div>

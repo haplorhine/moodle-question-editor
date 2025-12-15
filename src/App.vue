@@ -16,7 +16,7 @@ const filter = ref('')
 const newQuestion = ref(null)
 const showNewQuestionForm = ref(false)
 
-const acceptedTypes = ['multichoice', 'oumultiresponse']
+const acceptedTypes = ['multichoice', 'oumultiresponse', 'essay']
 
 // questions will be updated by reactivity system after import of xml
 const questions = computed(() => {
@@ -139,22 +139,21 @@ console.log('questions', questions)
   </div>
 
   <div class="container">
-    <Searchbar v-model="filter" v-if="parsedXML" />
-    <Searchterm :filteredQuestions="filteredQuestions" :filter="filter" :parsedXML="parsedXML" />
+    <div class="row">
+      <div class="col">
+        <Searchbar v-model="filter" v-if="parsedXML" />
+        <Searchterm :filteredQuestions="filteredQuestions" :filter="filter" :parsedXML="parsedXML" />
+      </div>
+      <div class="col-3">
+        <BaseButton @click="addNewQuestion" text="Add New Question" title="Add a new question" class="mt-2"
+          v-if="parsedXML && !showNewQuestionForm" />
+      </div>
+
+    </div>
   </div>
 
-  <BaseButton
-    @click="addNewQuestion"
-    text="Add New Question"
-    title="Add a new question"
-    class="mt-2"
-    v-if="parsedXML && !showNewQuestionForm"
-  />
 
-  <div
-    v-if="showNewQuestionForm && newQuestion"
-    class="container mt-3 border bg-secondary-subtle rounded p-2"
-  >
+  <div v-if="showNewQuestionForm && newQuestion" class="container mt-3 border bg-secondary-subtle rounded p-2">
     <div class="card border-primary">
       <div class="card-header bg-primary text-white">
         <h5 class="mb-0">Creating New Question</h5>
@@ -177,22 +176,12 @@ console.log('questions', questions)
     </div>
 
     <div class="fixed-bottom container py-2 mt-3 justify-content-end d-flex">
-      <button
-        class="btn btn-success me-3"
-        v-if="parsedXML"
-        @click="exportXML(parsedXML)"
-        data-bs-toggle="modal"
-        data-bs-target="#downloadmodal"
-      >
+      <button class="btn btn-success me-3" v-if="parsedXML" @click="exportXML(parsedXML)" data-bs-toggle="modal"
+        data-bs-target="#downloadmodal">
         Export
       </button>
-      <a
-        :href="builtXmlURL"
-        download="questions.xml"
-        v-if="parsedXML && builtXmlURL"
-        class="btn btn-success"
-        >Download XML</a
-      >
+      <a :href="builtXmlURL" download="questions.xml" v-if="parsedXML && builtXmlURL" class="btn btn-success">Download
+        XML</a>
     </div>
   </div>
 </template>
