@@ -16,7 +16,7 @@ const addAnswer = () => {
   }
   props.question.answer.push({
     text: '',
-    '@_fraction': '0',
+    '@_fraction': '100',
     feedback: {
       text: ''
     }
@@ -111,7 +111,7 @@ const removeAnswer = (question, index) => {
           <!-- Antworten -->
           <div class="accordion mb-4" :id="`answersAccordion-${question.uuid}`">
             <div
-              class="accordion-item mb-3 bg-light"
+              class="accordion-item bg-light"
               v-for="(ans, i) in question.answer"
               :key="i"
             >
