@@ -15,8 +15,9 @@ const builtXmlURL = ref(null)
 const filter = ref('')
 const newQuestion = ref(null)
 const showNewQuestionForm = ref(false)
+const newQuestionType = ref('multichoice')
 
-const acceptedTypes = ['multichoice', 'oumultiresponse', 'essay']
+const acceptedTypes = ['multichoice', 'oumultiresponse', 'coderunner']
 
 // questions will be updated by reactivity system after import of xml
 const questions = computed(() => {
@@ -47,36 +48,50 @@ const filteredQuestions = computed(() => {
 })
 
 const parseFile = (text) => {
-  // XMLParser options
-
-  const alwaysArray = ['quiz.question.answer']
-
   const options = {
     cdataPropName: '__cdata',
     ignoreAttributes: false,
-    // damit antworten immer in array umgewandelt werden
-    isArray: (name, jpath, isLeafNode, isAttribute) => {
-      if (alwaysArray.indexOf(jpath) !== -1) return true
-    },
   }
-  const parser = new XMLParser(options)
 
+  const parser = new XMLParser(options)
   const jsonObj = parser.parse(text)
 
-  console.log(jsonObj)
-  // uuid um vue ein key attribute zu geben bei iteration
-  jsonObj.quiz.question = jsonObj.quiz.question.map((question) => {
-    console.log(question['@_type'], 'question.answer content', question.answer)
-    const answerWithID = question.answer?.map((answer) => ({
-      ...answer,
-      uuid: crypto.randomUUID(),
-    }))
+  // 1️⃣ Sicherstellen: quiz.question ist IMMER ein Array
+  let questions = jsonObj?.quiz?.question
+  if (!Array.isArray(questions)) {
+    questions = questions ? [questions] : []
+  }
+
+  // 2️⃣ Fragen normalisieren
+  jsonObj.quiz.question = questions.map((question) => {
+    const type = question['@_type']
+
+    // Nur für Multiple-Choice Fragen
+    if (type === 'multichoice' || type === 'oumultiresponse') {
+      let answers = question.answer
+      if (!Array.isArray(answers)) {
+        answers = answers ? [answers] : []
+      }
+
+      answers = answers.map((a) => ({
+        ...a,
+        uuid: crypto.randomUUID(),
+      }))
+
+      return {
+        ...question,
+        uuid: crypto.randomUUID(),
+        answer: answers,
+      }
+    }
+
+    // Alle anderen Typen (z.B. CodeRunner) NICHT anfassen
     return {
       ...question,
       uuid: crypto.randomUUID(),
-      answer: answerWithID,
     }
   })
+
   parsedXML.value = jsonObj
 }
 
@@ -109,7 +124,7 @@ const addNewQuestion = () => {
     return
   }
 
-  newQuestion.value = createNewQuestionTemplate()
+  newQuestion.value = createNewQuestionTemplate(newQuestionType.value)
   showNewQuestionForm.value = true
 }
 
@@ -144,9 +159,24 @@ console.log('questions', questions)
         <Searchbar v-model="filter" v-if="parsedXML" />
         <Searchterm :filteredQuestions="filteredQuestions" :filter="filter" :parsedXML="parsedXML" />
       </div>
-      <div class="col-3">
-        <BaseButton @click="addNewQuestion" text="Add New Question" title="Add a new question" class="mt-2"
-          v-if="parsedXML && !showNewQuestionForm" />
+      <div class="col-3" v-if="parsedXML && !showNewQuestionForm">
+        <div class="d-flex align-items-stretch gap-2 mt-2">
+
+          <!-- Frage-Typ -->
+          <div class="form-floating flex-grow-1">
+            <select class="form-select" v-model="newQuestionType">
+              <option value="multichoice">Multiple Choice</option>
+              <option value="coderunner">CodeRunner</option>
+            </select>
+            <label>Question type</label>
+          </div>
+
+          <!-- Add Button -->
+          <button class="btn btn-primary" style="height: 58px" @click="addNewQuestion">
+            Add
+          </button>
+
+        </div>
       </div>
 
     </div>

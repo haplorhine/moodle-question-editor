@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-mutating-props -->
-<!-- eslint-disable vue/no-mutating-props -->
 <script setup>
 import TextEditor from './TextEditor.vue'
+import { computed } from 'vue';
 
 const props = defineProps({
   question: {
@@ -22,6 +22,7 @@ const addAnswer = () => {
     }
   });
 };
+
 const removeAnswer = (question, index) => {
   question.answer.splice(index, 1);
 };
@@ -32,12 +33,131 @@ const questionType = (type) => {
       return 'Multiple Choice';
     case 'oumultiresponse':
       return 'Multiple Choice';
-    case 'essay':
+    case 'coderunner':
       return 'Coderunner';
     default:
       return 'Unknown Type';
   }
 };
+
+function asArray(v) {
+  if (v == null) return [];
+  return Array.isArray(v) ? v : [v];
+}
+
+/**
+ * v-model Bridge für Moodle-XML Textfelder (CDATA/Non-CDATA tolerant).
+ * Unterstützt string | {text:string} | {text:{__cdata}} | {__cdata} | {"#text"}.
+ * Schreibt möglichst in der vorhandenen Form zurück (bewahrt CDATA-Stil).
+ */
+function moodleTextModel(rootObj, path) {
+  const keys = Array.isArray(path) ? path : String(path).split(".");
+
+  function getTarget(create = true) {
+    let cur = rootObj;
+    for (let i = 0; i < keys.length - 1; i++) {
+      const k = keys[i];
+      if (cur[k] == null) {
+        if (!create) return { parent: null, key: null };
+        cur[k] = {};
+      }
+      if (typeof cur[k] !== "object") {
+        if (!create) return { parent: null, key: null };
+        cur[k] = {};
+      }
+      cur = cur[k];
+    }
+    return { parent: cur, key: keys[keys.length - 1] };
+  }
+
+  function readVal(v) {
+    if (v == null) return "";
+    if (typeof v === "string") return v;
+
+    if (typeof v.text === "string") return v.text;
+
+    if (v.text && typeof v.text === "object") {
+      return v.text.__cdata ?? v.text["#text"] ?? "";
+    }
+
+    return v.__cdata ?? v["#text"] ?? "";
+  }
+
+  function writeVal(parent, key, val) {
+    const cur = parent[key];
+
+    // Bewahre vorhandene Struktur (CDATA/Non-CDATA) wenn möglich
+    if (cur && typeof cur === "object") {
+      if (cur.text && typeof cur.text === "object") {
+        if ("__cdata" in cur.text) {
+          cur.text.__cdata = val;
+          return;
+        }
+        if ("#text" in cur.text) {
+          cur.text["#text"] = val;
+          return;
+        }
+      }
+      if ("__cdata" in cur) {
+        cur.__cdata = val;
+        return;
+      }
+      if ("#text" in cur) {
+        cur["#text"] = val;
+        return;
+      }
+      if (typeof cur.text === "string") {
+        cur.text = val;
+        return;
+      }
+    }
+
+    // Default: leichtgewichtig als String
+    parent[key] = val;
+  }
+
+  return computed({
+    get() {
+      const { parent, key } = getTarget(false);
+      if (!parent) return "";
+      return readVal(parent[key]);
+    },
+    set(val) {
+      const { parent, key } = getTarget(true);
+      writeVal(parent, key, val);
+    },
+  });
+}
+
+function ensureCoderunnerTestcases(question) {
+  if (!question.testcases) question.testcases = {};
+  const raw = question.testcases.testcase;
+  question.testcases.testcase = asArray(raw);
+
+  // Normalize relevante Felder (nur die, die wir im Lightweight-UI editieren)
+  question.testcases.testcase.forEach(tc => {
+    if (tc["@_mark"] == null) tc["@_mark"] = "1.0000000";
+    if (tc["@_useasexample"] == null) tc["@_useasexample"] = "0";
+    if (tc.stdin == null) tc.stdin = "";
+    if (tc.expected == null) tc.expected = "";
+  });
+}
+
+function addTestcase(question) {
+  ensureCoderunnerTestcases(question);
+  question.testcases.testcase.push({
+    "@_mark": "1.0000000",
+    "@_useasexample": "0",
+    stdin: "",
+    expected: "",
+  });
+}
+
+function removeTestcase(question, index) {
+  ensureCoderunnerTestcases(question);
+  question.testcases.testcase.splice(index, 1);
+}
+
 </script>
 
 <template>
@@ -164,120 +284,131 @@ const questionType = (type) => {
           </div>
 
           <!--Coderunner spezifische Felder -->
-          <div v-if="question['@_type'] === 'essay'">
+          <div v-if="props.question['@_type'] === 'coderunner'">
+
+            <!-- CodeRunner Type -->
+            <div class="mb-3 form-floating">
+              <select class="form-select" v-model="props.question.coderunnertype">
+                <option value="">– bitte wählen –</option>
+
+                <!-- C / C++ -->
+                <option value="c_program">C</option>
+                <option value="cpp_program">C++</option>
+
+                <!-- Python -->
+                <option value="python3">Python 3</option>
+
+                <!-- Java -->
+                <option value="java_program">Java</option>
+
+                <!-- SQL -->
+                <option value="mysql">SQL (MySQL)</option>
+
+                <!-- Sonstige (häufig) -->
+                <option value="bash">Bash</option>
+                <option value="matlab">Matlab</option>
+              </select>
+              <label class="form-label">CodeRunner Type</label>
+            </div>
+
+            <!-- Startercode: TEMPLATE -->
+            <div class="mb-3">
+              <div class="card">
+                <div class="card-header">Startercode (template)</div>
+                <div class="card-body p-0 border border-0">
+                  <textarea class="form-control border-0" rows="10" :value="moodleTextModel(question, 'template').value"
+                    @input="moodleTextModel(question, 'template').value = $event.target.value"
+                    placeholder="Startercode / Vorlage…"></textarea>
+                </div>
+              </div>
+            </div>
 
             <hr />
 
-            <!-- Bewertung -->
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3 form-floating">
-                  <input type="number" class="form-control" v-model="question.defaultgrade" />
-                  <label>Default Grade</label>
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <div class="mb-3 form-floating">
-                  <input type="number" class="form-control" v-model="question.penalty" step="0.01" />
-                  <label>Penalty</label>
-                </div>
-              </div>
+            <!-- Testcases -->
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <div class="fw-semibold">Testcases</div>
+              <button type="button" class="btn btn-success btn-sm" @click="addTestcase(props.question)">
+                + Testcase
+              </button>
             </div>
 
-            <!-- Antwortformat -->
-            <div class="mb-3 form-floating">
-              <select class="form-select" v-model="question.responseformat">
-                <option value="editor">Editor</option>
-                <option value="plain">Plain Text</option>
-                <option value="monospaced">Monospaced</option>
-              </select>
-              <label>Response Format</label>
-            </div>
+            <div class="accordion mb-3" :id="`testcasesAccordion-${props.question.uuid}`"
+              v-if="(ensureCoderunnerTestcases(props.question), true)">
+              <div class="accordion-item mb-2 bg-light" v-for="(tc, i) in props.question.testcases.testcase" :key="i">
+                <h2 class="accordion-header" :id="`tc-heading-${props.question.uuid}-${i}`">
+                  <div class="d-flex align-items-center gap-2">
+                    <button class="accordion-button flex-grow-1 collapsed" type="button" data-bs-toggle="collapse"
+                      :data-bs-target="`#tc-collapse-${props.question.uuid}-${i}`"
+                      :aria-controls="`tc-collapse-${props.question.uuid}-${i}`" aria-expanded="false">
+                      Testcase {{ i + 1 }} — Mark: {{ tc['@_mark'] }}
+                    </button>
 
-            <!-- Antwort erforderlich -->
-            <div class="mb-3 form-floating">
-              <select class="form-select" v-model="question.responserequired">
-                <option value="1">Ja</option>
-                <option value="0">Nein</option>
-              </select>
-              <label>Antwort erforderlich</label>
-            </div>
+                    <button type="button" class="btn btn-outline-danger btn-sm me-3"
+                      @click.stop="removeTestcase(props.question, i)">
+                      Entfernen
+                    </button>
+                  </div>
+                </h2>
 
-            <!-- Zeilen im Editor -->
-            <div class="mb-3 form-floating">
-              <input type="number" class="form-control" v-model="question.responsefieldlines" />
-              <label>Editor-Zeilen</label>
-            </div>
+                <div :id="`tc-collapse-${props.question.uuid}-${i}`" class="accordion-collapse collapse"
+                  :aria-labelledby="`tc-heading-${props.question.uuid}-${i}`">
+                  <div class="accordion-body">
 
-            <!-- Wortlimits -->
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3 form-floating">
-                  <input type="number" class="form-control" v-model="question.minwordlimit" />
-                  <label>Min. Wörter</label>
-                </div>
-              </div>
+                    <div class="row">
+                      <div class="col-md-4">
+                        <div class="mb-3 form-floating">
+                          <input type="number" step="0.0000001" class="form-control" v-model="tc['@_mark']" />
+                          <label class="form-label">Mark</label>
+                        </div>
+                      </div>
 
-              <div class="col-md-6">
-                <div class="mb-3 form-floating">
-                  <input type="number" class="form-control" v-model="question.maxwordlimit" />
-                  <label>Max. Wörter</label>
-                </div>
-              </div>
-            </div>
+                      <div class="col-md-4">
+                        <div class="mb-3 form-floating">
+                          <select class="form-select" v-model="tc['@_useasexample']">
+                            <option value="1">1</option>
+                            <option value="0">0</option>
+                          </select>
+                          <label class="form-label">Use as example</label>
+                        </div>
+                      </div>
+                    </div>
 
-            <!-- Attachments -->
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3 form-floating">
-                  <input type="number" class="form-control" v-model="question.attachments" />
-                  <label>Anzahl Attachments</label>
-                </div>
-              </div>
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="mb-3">
+                          <div class="card">
+                            <div class="card-header">stdin</div>
+                            <div class="card-body p-0 border border-0">
+                              <textarea class="form-control border-0" rows="6"
+                                :value="moodleTextModel(tc, 'stdin').value"
+                                @input="moodleTextModel(tc, 'stdin').value = $event.target.value"></textarea>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 
-              <div class="col-md-6">
-                <div class="mb-3 form-floating">
-                  <select class="form-select" v-model="question.attachmentsrequired">
-                    <option value="0">Nein</option>
-                    <option value="1">Ja</option>
-                  </select>
-                  <label>Attachment erforderlich</label>
-                </div>
-              </div>
-            </div>
+                      <div class="col-md-6">
+                        <div class="mb-3">
+                          <div class="card">
+                            <div class="card-header">expected</div>
+                            <div class="card-body p-0 border border-0">
+                              <textarea class="form-control border-0" rows="6"
+                                :value="moodleTextModel(tc, 'expected').value"
+                                @input="moodleTextModel(tc, 'expected').value = $event.target.value"></textarea>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
-            <!-- Max Bytes -->
-            <div class="mb-3 form-floating">
-              <input type="number" class="form-control" v-model="question.maxbytes" />
-              <label>Maximale Dateigröße (Bytes)</label>
-            </div>
-
-            <!-- Grader Info (Musterlösung / Code) -->
-            <div class="mb-3">
-              <div class="card">
-                <div class="card-header">
-                  Grader Info / Musterlösung
-                </div>
-                <div class="card-body p-0">
-                  <TextEditor v-model="question.graderinfo.text['__cdata']" placeholder="Musterlösung / Code" />
-                </div>
-              </div>
-            </div>
-
-            <!-- Allgemeines Feedback -->
-            <div class="mb-3">
-              <div class="card">
-                <div class="card-header">
-                  Allgemeines Feedback
-                </div>
-                <div class="card-body p-0">
-                  <TextEditor v-model="question.generalfeedback.text['__cdata']" placeholder="Feedback" />
+                  </div>
                 </div>
               </div>
             </div>
 
           </div>
+
 
         </div>
       </div>
