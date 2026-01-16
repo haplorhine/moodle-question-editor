@@ -172,7 +172,7 @@ console.log('questions', questions)
           </div>
 
           <!-- Add Button -->
-          <button class="btn btn-primary" style="height: 58px" @click="addNewQuestion">
+          <button class="btn btn-success" style="height: 58px" @click="addNewQuestion">
             Add
           </button>
 
