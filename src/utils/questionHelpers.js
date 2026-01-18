@@ -1,32 +1,104 @@
+/**
+ * Creates a new question template with default values
+ * @returns {Object} A new question object with UUID
+ */
 export const createNewQuestionTemplate = (type = 'multichoice') => {
   const base = {
     '@_type': type,
-    name: {
-      text: 'New Question',
-    },
+    name: { text: 'New Question' },
+    // Moodle exportiert questiontext oft mit format="html"
     questiontext: {
-      text: {
-        __cdata: '<p>Enter your question text here...</p>',
-      },
+      '@_format': 'html',
+      text: { __cdata: '<p>Enter your question text here...</p>' },
     },
-    uuid: crypto.randomUUID(),
+    uuid: crypto.randomUUID(), // nur für Vue-Key (später beim Export entfernen!)
   }
 
   // ----------------------------
-  // CodeRunner (lightweight)
+  // CodeRunner (Moodle-kompatibel, "voll")
   // ----------------------------
   if (type === 'coderunner') {
     return {
       ...base,
-      coderunnertype: 'cpp_program', // Default, kannst du im UI ändern
-      template: '',                  // Startercode
+
+      // Moodle-typische Standardfelder
+      generalfeedback: {
+        '@_format': 'html',
+        text: { __cdata: '<p></p>' },
+      },
+      defaultgrade: '1',
+      penalty: '0',
+      hidden: '0',
+      idnumber: '',
+
+      // CodeRunner Kern
+      coderunnertype: 'cpp_program',
+      prototypetype: '0',
+      allornothing: '0',
+      penaltyregime: '10, 20, ...',
+      precheck: '0',
+      hidecheck: '0',
+      showsource: '0',
+
+      // UI/Editor Defaults (wie Moodle oft exportiert)
+      answerboxlines: '18',
+      answerboxcolumns: '100',
+      answerpreload: '',
+
+      globalextra: '',
+      useace: '',
+      resultcolumns: '',
+
+      template: '',                // <- dein Startercode
+      iscombinatortemplate: '',
+      allowmultiplestdins: '',
+
+      // answer wird bei CodeRunner oft als leeres Element mit-exportiert
+      answer: '',
+
+      validateonsave: '1',
+      testsplitterre: '',
+
+      language: '',
+      acelang: '',
+      sandbox: '',
+      grader: '',
+      cputimelimitsecs: '',
+      memlimitmb: '',
+      sandboxparams: '',
+
+      templateparams: '',
+      hoisttemplateparams: '1',
+      extractcodefromjson: '1',
+      templateparamslang: 'None',
+      templateparamsevalpertry: '0',
+      templateparamsevald: '{}',
+      twigall: '0',
+      uiplugin: '',
+      uiparameters: '',
+
+      attachments: '0',
+      attachmentsrequired: '0',
+      maxfilesize: '10240',
+      filenamesregex: '',
+      filenamesexplain: '',
+      displayfeedback: '1',
+      giveupallowed: '2',
+      prototypeextra: '',
+
+      // WICHTIG: testcases/testcase + stdin/expected immer mit <text>
       testcases: {
         testcase: [
           {
-            '@_mark': '1.0000000',
+            '@_testtype': '0',
             '@_useasexample': '0',
-            stdin: '',
-            expected: '',
+            '@_hiderestiffail': '0',
+            '@_mark': '1.0000000',
+            testcode: { text: '' },
+            stdin: { text: '' },
+            expected: { text: '' },
+            extra: { text: '' },
+            display: { text: 'SHOW' },
           },
         ],
       },
@@ -34,7 +106,7 @@ export const createNewQuestionTemplate = (type = 'multichoice') => {
   }
 
   // ----------------------------
-  // Default: MultiChoice
+  // Default: MultiChoice (wie bisher)
   // ----------------------------
   return {
     ...base,
