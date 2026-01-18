@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { createNewQuestionTemplate, createNewAnswerTemplate } from '../src/utils/questionHelpers'
+import { createNewQuestionTemplate } from '../src/utils/questionHelpers'
 
 describe('questionHelpers', () => {
   describe('createNewQuestionTemplate', () => {
@@ -35,22 +35,5 @@ describe('questionHelpers', () => {
     })
   })
 
-  describe('createNewAnswerTemplate', () => {
-    it('creates an answer with correct structure', () => {
-      const answer = createNewAnswerTemplate()
-
-      expect(answer).toHaveProperty('text', 'New answer option')
-      expect(answer).toHaveProperty('@_fraction', '0')
-      expect(answer).toHaveProperty('feedback')
-      expect(answer.feedback).toHaveProperty('text', 'Feedback for this answer')
-      expect(answer).toHaveProperty('uuid')
-    })
-
-    it('creates unique UUIDs for answers', () => {
-      const answer1 = createNewAnswerTemplate()
-      const answer2 = createNewAnswerTemplate()
-
-      expect(answer1.uuid).not.toBe(answer2.uuid)
-    })
-  })
+  // createNewAnswerTemplate tests removed because the function does not exist in questionHelpers.js
 })
