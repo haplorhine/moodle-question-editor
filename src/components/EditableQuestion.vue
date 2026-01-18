@@ -215,13 +215,13 @@ const readText = (v) => {
           <!-- Titel -->
           <div class="mb-3 form-floating">
             <input type="text" class="form-control" v-model="question.name.text" />
-            <label class="form-label">Titel</label>
+            <label class="form-label">Title</label>
           </div>
 
           <!-- Fragetext -->
           <div class="mb-3">
-            <label class="form-label" hidden>Fragetext</label>
-            <TextEditor v-model="question.questiontext.text['__cdata']" placeholder="Hier den Fragetext eingeben…" />
+            <label class="form-label" hidden>Question Text</label>
+            <TextEditor v-model="question.questiontext.text['__cdata']" placeholder="Enter question text here…" />
           </div>
           <!-- Multiple Choice spezifische Felder -->
           <div v-if="question['@_type'] == 'multichoice' || question['@_type'] == 'oumultiresponse'">
@@ -274,7 +274,7 @@ const readText = (v) => {
 
                     <button type="button" class="btn btn-outline-danger btn-sm me-3"
                       @click.stop="removeAnswer(question, i)">
-                      Entfernen
+                      Remove
                     </button>
                   </div>
                 </h2>
@@ -285,12 +285,12 @@ const readText = (v) => {
                     <div class="mb-3 form-floating">
                       <input type="text" class="form-control" :value="readText(ans.text)"
                         @input="ans.text = $event.target.value" />
-                      <label class="form-label">Antworttext</label>
+                      <label class="form-label">Answer Text</label>
                     </div>
 
                     <div class="mb-3 form-floating">
                       <input type="number" class="form-control" v-model="ans['@_fraction']" min="-100" max="100" />
-                      <label class="form-label">Bewertung</label>
+                      <label class="form-label">Grade</label>
                     </div>
 
                     <div class="mb-3">
@@ -321,7 +321,7 @@ const readText = (v) => {
             <!-- CodeRunner Type -->
             <div class="mb-3 form-floating">
               <select class="form-select" v-model="props.question.coderunnertype">
-                <option value="">– bitte wählen –</option>
+                <option value="">– please select –</option>
 
                 <!-- C / C++ -->
                 <option value="c_program">C</option>
@@ -378,7 +378,7 @@ const readText = (v) => {
 
                     <button type="button" class="btn btn-outline-danger btn-sm me-3"
                       @click.stop="removeTestcase(props.question, i)">
-                      Entfernen
+                      Remove
                     </button>
                   </div>
                 </h2>
