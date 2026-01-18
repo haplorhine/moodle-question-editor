@@ -158,6 +158,17 @@ function removeTestcase(question, index) {
   question.testcases.testcase.splice(index, 1);
 }
 
+const readText = (v) => {
+  if (v == null) return ''
+  if (typeof v === 'string') return v
+  if (typeof v.__cdata === 'string') return v.__cdata
+  if (typeof v['#text'] === 'string') return v['#text']
+  if (typeof v.text === 'string') return v.text
+  if (v.text && typeof v.text === 'object') return v.text.__cdata ?? v.text['#text'] ?? ''
+  return ''
+}
+
+
 </script>
 
 <template>
@@ -254,7 +265,8 @@ function removeTestcase(question, index) {
                   :aria-labelledby="`answer-heading-${question.uuid}-${i}`">
                   <div class="accordion-body">
                     <div class="mb-3 form-floating">
-                      <input type="text" class="form-control" v-model="ans.text" />
+                      <input type="text" class="form-control" :value="readText(ans.text)"
+                        @input="ans.text = $event.target.value" />
                       <label class="form-label">Antworttext</label>
                     </div>
 
@@ -269,7 +281,9 @@ function removeTestcase(question, index) {
                           Antwort-Feedback
                         </div>
                         <div class="card-body p-0 border border-0">
-                          <TextEditor v-model="ans.feedback.text" placeholder="Feedback" />
+                          <TextEditor :modelValue="readText(ans.feedback?.text)"
+                            @update:modelValue="(v) => { if (!ans.feedback) ans.feedback = {}; ans.feedback.text = v }"
+                            placeholder="Feedback" />
                         </div>
                       </div>
                     </div>
