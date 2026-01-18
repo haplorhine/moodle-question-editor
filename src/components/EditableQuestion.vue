@@ -311,7 +311,7 @@ const readText = (v) => {
             </div>
 
             <button type="button" class="btn btn-success btn-sm" @click="addAnswer">
-              + Antwort hinzufügen
+              + Add answer
             </button>
           </div>
 
@@ -350,7 +350,7 @@ const readText = (v) => {
                 <div class="card-body p-0 border border-0">
                   <textarea class="form-control border-0" rows="10" :value="moodleTextModel(question, 'template').value"
                     @input="moodleTextModel(question, 'template').value = $event.target.value"
-                    placeholder="Startercode / Vorlage…"></textarea>
+                    placeholder="Startercode"></textarea>
                 </div>
               </div>
             </div>
