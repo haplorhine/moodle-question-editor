@@ -158,13 +158,31 @@ function removeTestcase(question, index) {
   question.testcases.testcase.splice(index, 1);
 }
 
+const stripCDataWrapper = (s) => {
+  if (typeof s !== 'string') return s
+  const t = s.trim()
+  if (t.startsWith('<![CDATA[') && t.endsWith(']]>')) {
+    return t.slice(9, -3) // Inhalt zwischen <![CDATA[  und ]]>
+  }
+  return s
+}
+
 const readText = (v) => {
   if (v == null) return ''
-  if (typeof v === 'string') return v
+
+  // falls es als roher String mit <![CDATA[...]]> kommt
+  if (typeof v === 'string') return stripCDataWrapper(v)
+
   if (typeof v.__cdata === 'string') return v.__cdata
-  if (typeof v['#text'] === 'string') return v['#text']
-  if (typeof v.text === 'string') return v.text
-  if (v.text && typeof v.text === 'object') return v.text.__cdata ?? v.text['#text'] ?? ''
+  if (typeof v['#text'] === 'string') return stripCDataWrapper(v['#text'])
+
+  if (typeof v.text === 'string') return stripCDataWrapper(v.text)
+
+  if (v.text && typeof v.text === 'object') {
+    const inner = v.text.__cdata ?? v.text['#text'] ?? ''
+    return stripCDataWrapper(inner)
+  }
+
   return ''
 }
 
